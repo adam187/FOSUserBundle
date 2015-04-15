@@ -35,8 +35,13 @@ class FOSUserExtension extends Extension
         }
 
         if ('custom' !== $config['db_driver'] && 'propel' !== $config['db_driver']) {
-            $managerService = ('orm' === $config['db_driver']) ? 'fos_user.entity_manager' : 'fos_user.document_manager';
-            $doctrineService = ('orm' === $config['db_driver']) ? 'doctrine' : sprintf('doctrine_%s', $config['db_driver']);
+            if ('orm' === $config['db_driver']) {
+                $managerService = 'fos_user.entity_manager';
+                $doctrineService = 'doctrine';
+            } else {
+                $managerService = 'fos_user.document_manager';
+                $doctrineService = sprintf('doctrine_%s', $config['db_driver']);
+            }
             $definition = $container->getDefinition($managerService);
             if (method_exists($definition, 'setFactory')) {
                 $definition->setFactory(array(new Reference($doctrineService), 'getManager'));
